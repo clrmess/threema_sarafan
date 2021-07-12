@@ -1,0 +1,19 @@
+{
+    "name": "yaremenko/threema_broadcast_api",
+    "description": "A PHP wrapper for Threema broadcast API/Sarafan reply API",
+    "version": "0.1",
+    "authors": [
+        {
+            "name": "Evgen Yaremenko",
+            "email": "yaremenkojenya@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "7.0",
+        "monolog/monolog": "^2.3"
+    },
+    "autoload": {
+        "classmap": ["components/"]
+    }
+}
