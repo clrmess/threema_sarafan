@@ -1,3 +1,3 @@
-# threema_sarafan
+# Installation
 
 composer install
