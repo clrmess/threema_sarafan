@@ -9,6 +9,28 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class BroadcastAPI
 {
+    private array $groupsDict = [
+        3281 => '', #Вільногірський елеватор в'їзд
+        3282 => '', #Вільногірський елеватор Бухгалтерія
+        3283 => '', #Вільногірський елеватор Лабораторія
+        3284 => '', #Вільногірський елеватор Вагова
+        3285 => '', #Пришибский елеватор В'їзд
+        3286 => '', #Пришибский елеватор Бухгалтерія
+        3287 => '', #Пришибский елеватор Лабораторія
+        3288 => '', #Пришибский елеватор Вагова
+        3289 => '', #Ингулецький елеватор В'їзд
+        3290 => '', #Ингулецький елеватор Бухгалтерія
+        3291 => '', #Ингулецький елеватор Лабораторія
+        3292 => '', #Ингулецький елеватор Вагова
+        3293 => '', #Варварівський елеватор В'їзд
+        3294 => '', #Варварівський елеватор Бухгалтерія
+        3295 => '', #Варварівський елеватор Лабораторія
+        3296 => '', #Варварівський елеватор Вагова
+        3297 => '', #Роздорський Елеватор В'їзд
+        3298 => '', #Роздорський Елеватор Бухгалтерія
+        3299 => '', #Роздорський Елеватор Лабораторія
+        3300 => '', #Роздорський Елеватор Вагова
+    ];
     private string $baseUrl = 'https://broadcast.threema.ch/api/v1/';
     private string $apiKey = '';
     private string $broadcastUid = '';
@@ -46,6 +68,8 @@ class BroadcastAPI
         string $caption = ''
     ) :bool
     {
+        $groupUid = $this->groupsDict[$groupUid];
+
         $response = $type === false ? $this->client->post(
             "identities/$this->broadcastUid/groups/$groupUid/chat",
             [
@@ -86,6 +110,7 @@ class BroadcastAPI
         int $pageSize = 2
     ): bool
     {
+        $groupUid = $this->groupsDict[$groupUid];
         $response = $this->client->get(
             "identities/$this->broadcastUid/groups/$groupUid/chat",
             [
@@ -103,21 +128,17 @@ class BroadcastAPI
             {
                 $messageDate = strtotime($message['createdAt']);
                 if ($messageDate < $fromDate) continue;
-                $actualMessage = $this->getMessage($groupUid, $message['id']);
-                if ($actualMessage)
+
+                if ($message['type'] === 'text')
                 {
-                    $messageData = \GuzzleHttp\json_decode($actualMessage, true);
-                    if ($messageData['type'] === 'text')
+                    $text = $message['body'];
+                    preg_match('/№(\d+)/', $text, $output_array);
+                    if (count($output_array) == 2)
                     {
-                        $text = $messageData['body'];
-                        preg_match('/№(\d+)/', $text, $output_array);
-                        if (count($output_array) == 2)
-                        {
-                            $reviewId = $output_array[1];
-                            $answer = preg_replace('/(Звернення №).(\d+).(Відповідь: )/', '', $text);
-                            $sarafanApi = new SarafanApi();
-                            $sarafanApi->sendReply($answer, $reviewId);
-                        }
+                        $reviewId = $output_array[1];
+                        $answer = preg_replace('/(Звернення №).(\d+).(Відповідь: )/', '', $text);
+                        $sarafanApi = new SarafanApi();
+                        $sarafanApi->sendReply($answer, $reviewId);
                     }
                 }
             }
@@ -146,6 +167,8 @@ class BroadcastAPI
      */
     public function getMessage(string $groupUid, string $messageUid)
     {
+        $groupUid = $this->groupsDict[$groupUid];
+
         $response = $this->client->get(
             "identities/$this->broadcastUid/groups/$groupUid/chat/$messageUid"
         );
