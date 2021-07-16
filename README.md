@@ -1,0 +1,3 @@
+# Installation
+
+composer install
