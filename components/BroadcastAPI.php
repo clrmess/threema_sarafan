@@ -9,7 +9,7 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class BroadcastAPI
 {
-    private array $groupsDict = [
+    public array $groupsDict = [
         3281 => '', #Вільногірський елеватор в'їзд
         3282 => '', #Вільногірський елеватор Бухгалтерія
         3283 => '', #Вільногірський елеватор Лабораторія
@@ -97,7 +97,6 @@ class BroadcastAPI
      * Function to get Threema group message history
      *
      * @param string $groupUid Uid of the group
-     * @param int $fromDate Unix timestamp
      * @param int $page Page of the group messages list
      * @param int $pageSize
      * @return false
@@ -105,8 +104,7 @@ class BroadcastAPI
      */
     public function getMessages(
         string $groupUid,
-        int $fromDate,
-        int $page = 1,
+        int $page = 0,
         int $pageSize = 2
     ): bool
     {
@@ -126,8 +124,6 @@ class BroadcastAPI
             $decodedContent = \GuzzleHttp\json_decode($content, true);
             foreach ($decodedContent['messages'] as $message)
             {
-                $messageDate = strtotime($message['createdAt']);
-                if ($messageDate < $fromDate) continue;
 
                 if ($message['type'] === 'text')
                 {
@@ -149,7 +145,7 @@ class BroadcastAPI
             $nextPage = ++$pagingPage;
             while ($nextPage <= $this->maxPage)
             {
-                $this->getMessages($groupUid, $fromDate, $nextPage, $pageSize);
+                $this->getMessages($groupUid, $nextPage, $pageSize);
             }
         }
         else {

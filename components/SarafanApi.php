@@ -37,4 +37,12 @@ class SarafanApi
         );
         return $response->getStatusCode() === 200;
     }
+
+    public function getNotifications() :array
+    {
+        $response = $this->client->get(
+            "threema/get-notifications"
+        );
+        return json_decode($response->getBody());
+    }
 }
